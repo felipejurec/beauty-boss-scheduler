@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import Logo from '@/components/Logo';
 import PageContainer from '@/components/PageContainer';
 import { ArrowRight, Calendar, Clock, Settings, Users } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 const LandingPage = () => {
   return (
