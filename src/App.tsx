@@ -23,6 +23,10 @@ import ServicosPage from "./pages/dashboard/ServicosPage";
 import MensagensPage from "./pages/dashboard/MensagensPage";
 import ConfiguracoesPage from "./pages/dashboard/ConfiguracoesPage";
 import RelatoriosPage from "./pages/dashboard/RelatoriosPage";
+import LinkAgendamentoPage from "./pages/dashboard/LinkAgendamentoPage";
+
+// Agendamento Público
+import AgendamentoPublicoPage from "./pages/agenda/AgendamentoPublicoPage";
 
 // Protected route component
 import ProtectedRoute from "./components/ProtectedRoute";
@@ -42,6 +46,10 @@ const App = () => (
               <Route path="/" element={<LandingPage />} />
               <Route path="/login" element={<LoginPage />} />
               <Route path="/signup" element={<SignupPage />} />
+              
+              {/* Agendamento público */}
+              <Route path="/agenda/agendar" element={<AgendamentoPublicoPage />} />
+              <Route path="/agenda/preview" element={<AgendamentoPublicoPage />} />
               
               {/* Protected routes */}
               <Route path="/onboarding" element={
@@ -63,6 +71,7 @@ const App = () => (
                 <Route path="mensagens" element={<MensagensPage />} />
                 <Route path="configuracoes" element={<ConfiguracoesPage />} />
                 <Route path="relatorios" element={<RelatoriosPage />} />
+                <Route path="link-agendamento" element={<LinkAgendamentoPage />} />
               </Route>
               
               {/* Catch-all route */}
