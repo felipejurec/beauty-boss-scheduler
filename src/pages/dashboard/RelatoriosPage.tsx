@@ -6,8 +6,8 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { DatePicker } from "@/components/DatePicker";
 import { BarChart, AreaChart, PieChart, LineChart } from "recharts";
-import { Bar, Area, Pie, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
-import { FilePdf, Download, Mail, Calendar, FileSpreadsheet } from "lucide-react"; // Fixed import
+import { Bar, Area, Pie, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Cell } from "recharts";
+import { FileText, Mail, Calendar, FileSpreadsheet, Download } from "lucide-react";
 import PageContainer from '@/components/PageContainer';
 import { toast } from "sonner";
 
@@ -140,7 +140,7 @@ const RelatoriosPage = () => {
                 </div>
                 <div className="flex space-x-2">
                   <Button size="sm" variant="outline" onClick={handleExportPDF}>
-                    <FilePdf className="mr-2 h-4 w-4" />
+                    <FileText className="mr-2 h-4 w-4" />
                     PDF
                   </Button>
                   <Button size="sm" variant="outline" onClick={handleExportCSV}>
@@ -252,7 +252,7 @@ const RelatoriosPage = () => {
                 </div>
                 <div className="flex space-x-2">
                   <Button size="sm" variant="outline" onClick={handleExportPDF}>
-                    <FilePdf className="mr-2 h-4 w-4" />
+                    <FileText className="mr-2 h-4 w-4" />
                     PDF
                   </Button>
                   <Button size="sm" variant="outline" onClick={handleExportCSV}>
@@ -365,7 +365,7 @@ const RelatoriosPage = () => {
                 </div>
                 <div className="flex space-x-2">
                   <Button size="sm" variant="outline" onClick={handleExportPDF}>
-                    <FilePdf className="mr-2 h-4 w-4" />
+                    <FileText className="mr-2 h-4 w-4" />
                     PDF
                   </Button>
                   <Button size="sm" variant="outline" onClick={handleExportCSV}>
@@ -486,7 +486,7 @@ const RelatoriosPage = () => {
                 </div>
                 <div className="flex space-x-2">
                   <Button size="sm" variant="outline" onClick={handleExportPDF}>
-                    <FilePdf className="mr-2 h-4 w-4" />
+                    <FileText className="mr-2 h-4 w-4" />
                     PDF
                   </Button>
                   <Button size="sm" variant="outline" onClick={handleExportCSV}>
