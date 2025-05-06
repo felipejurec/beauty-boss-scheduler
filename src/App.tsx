@@ -17,6 +17,11 @@ import NotFound from "./pages/NotFound";
 // Dashboard
 import DashboardLayout from "./components/layout/DashboardLayout";
 import DashboardPage from "./pages/dashboard/DashboardPage";
+import AgendaPage from "./pages/dashboard/AgendaPage";
+import ClientesPage from "./pages/dashboard/ClientesPage";
+import ServicosPage from "./pages/dashboard/ServicosPage";
+import MensagensPage from "./pages/dashboard/MensagensPage";
+import ConfiguracoesPage from "./pages/dashboard/ConfiguracoesPage";
 
 // Protected route component
 import ProtectedRoute from "./components/ProtectedRoute";
@@ -51,12 +56,11 @@ const App = () => (
                 </ProtectedRoute>
               }>
                 <Route index element={<DashboardPage />} />
-                {/* Add more dashboard routes here */}
-                <Route path="agenda" element={<div>Agenda (Em breve)</div>} />
-                <Route path="clientes" element={<div>Clientes (Em breve)</div>} />
-                <Route path="servicos" element={<div>Serviços (Em breve)</div>} />
-                <Route path="mensagens" element={<div>Mensagens (Em breve)</div>} />
-                <Route path="configuracoes" element={<div>Configurações (Em breve)</div>} />
+                <Route path="agenda" element={<AgendaPage />} />
+                <Route path="clientes" element={<ClientesPage />} />
+                <Route path="servicos" element={<ServicosPage />} />
+                <Route path="mensagens" element={<MensagensPage />} />
+                <Route path="configuracoes" element={<ConfiguracoesPage />} />
               </Route>
               
               {/* Catch-all route */}
