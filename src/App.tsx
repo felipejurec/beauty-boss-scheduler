@@ -48,7 +48,7 @@ const App = () => (
               <Route path="/signup" element={<SignupPage />} />
               
               {/* Agendamento público */}
-              <Route path="/agenda/agendar" element={<AgendamentoPublicoPage />} />
+              <Route path="/agenda/agendar/:linkId?" element={<AgendamentoPublicoPage />} />
               <Route path="/agenda/preview" element={<AgendamentoPublicoPage />} />
               
               {/* Protected routes */}
