@@ -22,6 +22,7 @@ import ClientesPage from "./pages/dashboard/ClientesPage";
 import ServicosPage from "./pages/dashboard/ServicosPage";
 import MensagensPage from "./pages/dashboard/MensagensPage";
 import ConfiguracoesPage from "./pages/dashboard/ConfiguracoesPage";
+import RelatoriosPage from "./pages/dashboard/RelatoriosPage";
 
 // Protected route component
 import ProtectedRoute from "./components/ProtectedRoute";
@@ -61,6 +62,7 @@ const App = () => (
                 <Route path="servicos" element={<ServicosPage />} />
                 <Route path="mensagens" element={<MensagensPage />} />
                 <Route path="configuracoes" element={<ConfiguracoesPage />} />
+                <Route path="relatorios" element={<RelatoriosPage />} />
               </Route>
               
               {/* Catch-all route */}
