@@ -1,6 +1,5 @@
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { BusinessType, OnboardingState } from '@/types';
 import { getServicesByBusinessType } from '@/lib/mock-data';
 import { supabase } from '@/integrations/supabase/client';
@@ -18,7 +17,7 @@ interface OnboardingContextType {
   updateService: (index: number, name: string, duration: number, price: number) => void;
   loadDefaultServices: (businessType: BusinessType) => void;
   setSchedule: (day: string, enabled: boolean, start: string, end: string) => void;
-  saveOnboardingData: () => Promise<void>;
+  saveOnboardingData: () => Promise<{ success: boolean, error?: string }>;
   resetState: () => void;
   isSubmitting: boolean;
 }
@@ -47,7 +46,6 @@ export const OnboardingProvider = ({ children }: { children: React.ReactNode }) 
   const [state, setState] = useState<OnboardingState>(initialState);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { currentUser } = useAuth();
-  const navigate = useNavigate();
 
   // Carregar dados existentes do usuário, se disponíveis
   useEffect(() => {
@@ -208,10 +206,10 @@ export const OnboardingProvider = ({ children }: { children: React.ReactNode }) 
     }));
   };
 
-  const saveOnboardingData = async () => {
+  const saveOnboardingData = async (): Promise<{ success: boolean, error?: string }> => {
     if (!currentUser) {
       toast.error("Você precisa estar logado para salvar os dados");
-      return;
+      return { success: false, error: "Usuário não está autenticado" };
     }
 
     setIsSubmitting(true);
@@ -292,12 +290,12 @@ export const OnboardingProvider = ({ children }: { children: React.ReactNode }) 
       if (schedulesError) throw schedulesError;
 
       toast.success("Dados de onboarding salvos com sucesso!");
-      
-      // Redirecionar para o dashboard após salvar
-      navigate('/dashboard');
+      return { success: true };
     } catch (error) {
       console.error('Erro ao salvar dados de onboarding:', error);
-      toast.error("Erro ao salvar dados: " + (error as Error).message);
+      const errorMessage = (error as Error).message;
+      toast.error("Erro ao salvar dados: " + errorMessage);
+      return { success: false, error: errorMessage };
     } finally {
       setIsSubmitting(false);
     }

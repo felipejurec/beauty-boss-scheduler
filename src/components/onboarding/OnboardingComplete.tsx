@@ -15,13 +15,17 @@ const OnboardingComplete = () => {
   const handleSubscribe = async (planId: string) => {
     try {
       // Salvar todos os dados de onboarding antes de prosseguir
-      await saveOnboardingData();
+      const { success, error } = await saveOnboardingData();
       
-      toast.success(`Plano ${planId} selecionado! Redirecionando para pagamento...`);
-      // Mock subscription process - in a real app, we'd redirect to Stripe
-      setTimeout(() => {
-        navigate('/dashboard');
-      }, 1500);
+      if (success) {
+        toast.success(`Plano ${planId} selecionado! Redirecionando para pagamento...`);
+        // Mock subscription process - in a real app, we'd redirect to Stripe
+        setTimeout(() => {
+          navigate('/dashboard');
+        }, 1500);
+      } else {
+        toast.error(`Erro ao salvar dados: ${error}`);
+      }
     } catch (error) {
       console.error('Erro ao finalizar onboarding:', error);
     }
@@ -29,8 +33,12 @@ const OnboardingComplete = () => {
 
   const handleStartTrial = async () => {
     try {
-      await saveOnboardingData();
-      navigate('/dashboard');
+      const { success, error } = await saveOnboardingData();
+      if (success) {
+        navigate('/dashboard');
+      } else {
+        toast.error(`Erro ao salvar dados: ${error}`);
+      }
     } catch (error) {
       console.error('Erro ao iniciar período de teste:', error);
     }
