@@ -8,6 +8,7 @@ import {
   MessageSquare, 
   BarChart, 
   Settings,
+  FileText,
   Link as LinkIcon
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -41,7 +42,7 @@ const navItems = [
   {
     title: "Relatórios",
     href: "/dashboard/relatorios",
-    icon: <BarChart className="h-5 w-5" />
+    icon: <FileText className="h-5 w-5" />
   },
   {
     title: "Link de Agendamento",
