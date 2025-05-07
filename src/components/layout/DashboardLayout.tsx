@@ -25,6 +25,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { useIsMobile } from '@/hooks/use-mobile';
+import NavLinks from '@/components/dashboard/NavLinks';
 
 interface NavItemProps {
   href: string;
@@ -80,10 +81,10 @@ const DashboardLayout = () => {
 
   // Obter iniciais do nome do usuário para exibir no Avatar
   const getUserInitials = () => {
-    if (!currentUser?.displayName && !currentUser?.email) return '?';
+    if (!currentUser) return '?';
     
-    if (currentUser?.displayName) {
-      return currentUser.displayName
+    if (currentUser.name) {
+      return currentUser.name
         .split(' ')
         .map((n) => n[0])
         .join('')
@@ -215,7 +216,7 @@ const DashboardLayout = () => {
                 </AvatarFallback>
               </Avatar>
               <div className="hidden md:block">
-                <p className="font-medium text-sm">{currentUser?.displayName || currentUser?.email || 'Usuário'}</p>
+                <p className="font-medium text-sm">{currentUser?.name || currentUser?.email || 'Usuário'}</p>
                 <p className="text-xs text-gray-500">Professional</p>
               </div>
             </div>
