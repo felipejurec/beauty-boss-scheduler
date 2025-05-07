@@ -1,17 +1,6 @@
-
 import React, { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
-import { 
-  Calendar, 
-  Clock, 
-  PlusCircle, 
-  TrendingUp, 
-  TrendingDown,
-  Users,
-  ArrowRight,
-  Bell,
-  Scissors
-} from 'lucide-react';
+import { Calendar, Clock, PlusCircle, TrendingUp, TrendingDown, Users, ArrowRight, Bell, Scissors } from 'lucide-react';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import PageContainer from '@/components/PageContainer';
@@ -22,36 +11,66 @@ import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 
 // Mock data - would be replaced with real data from backend
-const appointments = [
-  { id: 1, time: '09:00', clientName: 'Maria Silva', service: 'Corte de Cabelo', duration: 45 },
-  { id: 2, time: '11:00', clientName: 'João Santos', service: 'Barba', duration: 30 },
-  { id: 3, time: '14:30', clientName: 'Ana Oliveira', service: 'Coloração', duration: 120 },
-  { id: 4, time: '17:00', clientName: 'Carlos Ferreira', service: 'Hidratação', duration: 60 },
-];
-
-const topServices = [
-  { id: 1, name: 'Corte de Cabelo', count: 24, growth: 5 },
-  { id: 2, name: 'Coloração', count: 18, growth: -2 },
-  { id: 3, name: 'Hidratação', count: 15, growth: 3 },
-];
-
+const appointments = [{
+  id: 1,
+  time: '09:00',
+  clientName: 'Maria Silva',
+  service: 'Corte de Cabelo',
+  duration: 45
+}, {
+  id: 2,
+  time: '11:00',
+  clientName: 'João Santos',
+  service: 'Barba',
+  duration: 30
+}, {
+  id: 3,
+  time: '14:30',
+  clientName: 'Ana Oliveira',
+  service: 'Coloração',
+  duration: 120
+}, {
+  id: 4,
+  time: '17:00',
+  clientName: 'Carlos Ferreira',
+  service: 'Hidratação',
+  duration: 60
+}];
+const topServices = [{
+  id: 1,
+  name: 'Corte de Cabelo',
+  count: 24,
+  growth: 5
+}, {
+  id: 2,
+  name: 'Coloração',
+  count: 18,
+  growth: -2
+}, {
+  id: 3,
+  name: 'Hidratação',
+  count: 15,
+  growth: 3
+}];
 const DashboardPage = () => {
   const [selectedDate, setSelectedDate] = useState(new Date());
-  const { currentUser } = useAuth();
-  
+  const {
+    currentUser
+  } = useAuth();
+
   // Calculate agenda occupation rate (mock data)
   const occupationRate = 65;
   const monthlyRevenue = 3750;
   const revenueGrowth = 12;
-  
-  return (
-    <PageContainer>
+  return <PageContainer>
       {/* Cabeçalho do Dashboard */}
       <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between mb-6">
         <div>
           <h1 className="text-3xl font-bold">{currentUser?.businessName || 'Seu Negócio'}</h1>
-          <p className="text-muted-foreground">
-            {format(new Date(), "'Hoje é' EEEE, dd 'de' MMMM 'de' yyyy", { locale: ptBR })}
+          <p className="text-muted-foreground my-[20px]">
+            {format(new Date(), "'Hoje é' EEEE, dd 'de' MMMM 'de' yyyy", {
+            locale: ptBR
+          })}
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -78,9 +97,7 @@ const DashboardPage = () => {
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
-              {appointments.length > 0 ? (
-                appointments.slice(0, 3).map((appointment) => (
-                  <div key={appointment.id} className="flex items-center justify-between">
+              {appointments.length > 0 ? appointments.slice(0, 3).map(appointment => <div key={appointment.id} className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
                       <div className="bg-brand-50 text-brand-700 font-medium p-2 rounded w-14 text-center">
                         {appointment.time}
@@ -91,11 +108,7 @@ const DashboardPage = () => {
                       </div>
                     </div>
                     <div className="text-sm text-muted-foreground">{appointment.duration} min</div>
-                  </div>
-                ))
-              ) : (
-                <p className="text-muted-foreground py-2">Nenhum agendamento para hoje</p>
-              )}
+                  </div>) : <p className="text-muted-foreground py-2">Nenhum agendamento para hoje</p>}
             </div>
           </CardContent>
           <CardFooter className="pt-0">
@@ -154,23 +167,19 @@ const DashboardPage = () => {
           <CardContent className="space-y-4">
             <p className="text-3xl font-bold">R$ {monthlyRevenue.toLocaleString('pt-BR')}</p>
             <div className="flex items-center">
-              {revenueGrowth > 0 ? (
-                <>
+              {revenueGrowth > 0 ? <>
                   <Badge variant="outline" className="bg-green-50 text-green-700 hover:bg-green-100">
                     <TrendingUp className="h-3 w-3 mr-1" />
                     +{revenueGrowth}%
                   </Badge>
                   <span className="text-sm ml-2 text-muted-foreground">em relação ao mês anterior</span>
-                </>
-              ) : (
-                <>
+                </> : <>
                   <Badge variant="outline" className="bg-red-50 text-red-700 hover:bg-red-100">
                     <TrendingDown className="h-3 w-3 mr-1" />
                     {revenueGrowth}%
                   </Badge>
                   <span className="text-sm ml-2 text-muted-foreground">em relação ao mês anterior</span>
-                </>
-              )}
+                </>}
             </div>
           </CardContent>
           <CardFooter className="pt-0">
@@ -195,8 +204,7 @@ const DashboardPage = () => {
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {topServices.map((service) => (
-                <div key={service.id} className="flex items-center justify-between">
+              {topServices.map(service => <div key={service.id} className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <div className="bg-brand-50 text-brand-700 p-2 rounded-full w-8 h-8 flex items-center justify-center">
                       {service.id}
@@ -205,14 +213,9 @@ const DashboardPage = () => {
                   </div>
                   <div className="flex items-center gap-3">
                     <span className="text-sm font-medium">{service.count} agendados</span>
-                    {service.growth > 0 ? (
-                      <Badge variant="outline" className="bg-green-50 text-green-700">+{service.growth}%</Badge>
-                    ) : (
-                      <Badge variant="outline" className="bg-red-50 text-red-700">{service.growth}%</Badge>
-                    )}
+                    {service.growth > 0 ? <Badge variant="outline" className="bg-green-50 text-green-700">+{service.growth}%</Badge> : <Badge variant="outline" className="bg-red-50 text-red-700">{service.growth}%</Badge>}
                   </div>
-                </div>
-              ))}
+                </div>)}
             </div>
           </CardContent>
           <CardFooter className="pt-0">
@@ -234,8 +237,7 @@ const DashboardPage = () => {
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {appointments.slice(0, 3).map((appointment) => (
-                <div key={appointment.id} className="flex items-center justify-between">
+              {appointments.slice(0, 3).map(appointment => <div key={appointment.id} className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <div className="bg-gray-100 rounded-full w-10 h-10 flex items-center justify-center text-gray-600 font-medium">
                       {appointment.clientName.substring(0, 2).toUpperCase()}
@@ -245,8 +247,7 @@ const DashboardPage = () => {
                       <p className="text-sm text-muted-foreground">Último serviço: {appointment.service}</p>
                     </div>
                   </div>
-                </div>
-              ))}
+                </div>)}
             </div>
           </CardContent>
           <CardFooter className="pt-0">
@@ -305,8 +306,6 @@ const DashboardPage = () => {
           </div>
         </CardContent>
       </Card>
-    </PageContainer>
-  );
+    </PageContainer>;
 };
-
 export default DashboardPage;
