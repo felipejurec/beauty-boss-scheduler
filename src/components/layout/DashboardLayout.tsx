@@ -75,6 +75,16 @@ const DashboardLayout = () => {
     navigate('/');
   };
 
+  // Obter iniciais do nome do usuário para exibir no Avatar
+  const getUserInitials = () => {
+    if (!currentUser?.name) return '?';
+    return currentUser.name
+      .split(' ')
+      .map((n) => n[0])
+      .join('')
+      .toUpperCase();
+  };
+
   const navigation = [
     { href: '/dashboard', icon: <ChartBar className="h-5 w-5" />, label: 'Visão Geral' },
     { href: '/dashboard/agenda', icon: <Calendar className="h-5 w-5" />, label: 'Agenda' },
@@ -190,11 +200,11 @@ const DashboardLayout = () => {
             <div className="flex items-center gap-2">
               <Avatar>
                 <AvatarFallback>
-                  {currentUser?.name?.split(' ').map((n) => n[0]).join('').toUpperCase()}
+                  {getUserInitials()}
                 </AvatarFallback>
               </Avatar>
               <div className="hidden md:block">
-                <p className="font-medium text-sm">{currentUser?.name}</p>
+                <p className="font-medium text-sm">{currentUser?.name || 'Usuário'}</p>
                 <p className="text-xs text-gray-500">Professional</p>
               </div>
             </div>

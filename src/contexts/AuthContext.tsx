@@ -4,30 +4,78 @@ import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
+// Definir um tipo para representar o usuário com dados do perfil
+interface UserWithProfile extends User {
+  name?: string;
+  whatsapp?: string;
+  profileData?: any;
+}
+
 interface AuthContextType {
-  currentUser: User | null;
+  currentUser: UserWithProfile | null;
   session: Session | null;
   isLoading: boolean;
   isAuthenticated: boolean;
   login: (email: string, password: string) => Promise<void>;
   signup: (name: string, email: string, whatsapp: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
+  refreshProfile: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
-  const [currentUser, setCurrentUser] = useState<User | null>(null);
+  const [currentUser, setCurrentUser] = useState<UserWithProfile | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
+
+  // Função para buscar os dados do perfil do usuário
+  const fetchUserProfile = async (userId: string) => {
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', userId)
+        .single();
+        
+      if (error) throw error;
+      
+      if (data) {
+        setCurrentUser(prev => 
+          prev ? { ...prev, name: data.name, whatsapp: data.whatsapp, profileData: data } : null
+        );
+      }
+    } catch (error) {
+      console.error('Erro ao buscar perfil:', error);
+    }
+  };
+  
+  // Função para atualizar os dados do perfil
+  const refreshProfile = async () => {
+    if (currentUser?.id) {
+      await fetchUserProfile(currentUser.id);
+    }
+  };
 
   useEffect(() => {
     // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, newSession) => {
         setSession(newSession);
-        setCurrentUser(newSession?.user ?? null);
+        
+        if (newSession?.user) {
+          const userWithProfile = newSession.user as UserWithProfile;
+          setCurrentUser(userWithProfile);
+          
+          // Buscar dados do perfil em um setTimeout para evitar loops
+          setTimeout(() => {
+            fetchUserProfile(userWithProfile.id);
+          }, 0);
+        } else {
+          setCurrentUser(null);
+        }
+        
         setIsAuthenticated(!!newSession);
       }
     );
@@ -39,7 +87,17 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         if (error) throw error;
         
         setSession(data.session);
-        setCurrentUser(data.session?.user ?? null);
+        
+        if (data.session?.user) {
+          const userWithProfile = data.session.user as UserWithProfile;
+          setCurrentUser(userWithProfile);
+          
+          // Buscar os dados do perfil
+          await fetchUserProfile(userWithProfile.id);
+        } else {
+          setCurrentUser(null);
+        }
+        
         setIsAuthenticated(!!data.session);
       } catch (error) {
         console.error('Erro ao verificar sessão:', error);
@@ -124,6 +182,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         login,
         signup,
         logout,
+        refreshProfile,
       }}
     >
       {children}

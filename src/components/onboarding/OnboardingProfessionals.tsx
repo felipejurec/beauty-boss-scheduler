@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useOnboarding } from '@/contexts/OnboardingContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -21,10 +21,10 @@ const OnboardingProfessionals = () => {
   };
 
   // Ensure the first professional is the current user
-  React.useEffect(() => {
+  useEffect(() => {
     if (state.professionals.length > 0 && currentUser && state.professionals[0].name === '') {
       const professionalsCopy = [...state.professionals];
-      professionalsCopy[0].name = currentUser.name;
+      professionalsCopy[0].name = currentUser.name || currentUser.email?.split('@')[0] || 'Proprietário';
       // We can't update state here directly, but this effect ensures the first slot shows the current user
     }
   }, [state.professionals, currentUser]);
@@ -40,7 +40,7 @@ const OnboardingProfessionals = () => {
           <Card key={index} className="p-4 flex items-center justify-between">
             <div className="flex-1">
               <Input 
-                value={index === 0 && currentUser ? currentUser.name : professional.name} 
+                value={index === 0 && currentUser ? (currentUser.name || currentUser.email?.split('@')[0] || professional.name) : professional.name} 
                 onChange={(e) => {
                   // In a real implementation we would update the professional name in the context
                   // But for simplicity we'll just show the input
