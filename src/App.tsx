@@ -58,19 +58,19 @@ const App = () => (
             } />
             
             {/* Dashboard routes */}
-            <Route path="/dashboard" element={
+            <Route element={
               <ProtectedRoute>
                 <DashboardLayout />
               </ProtectedRoute>
             }>
-              <Route index element={<DashboardPage />} />
-              <Route path="agenda" element={<AgendaPage />} />
-              <Route path="clientes" element={<ClientesPage />} />
-              <Route path="servicos" element={<ServicosPage />} />
-              <Route path="mensagens" element={<MensagensPage />} />
-              <Route path="configuracoes" element={<ConfiguracoesPage />} />
-              <Route path="relatorios" element={<RelatoriosPage />} />
-              <Route path="link-agendamento" element={<LinkAgendamentoPage />} />
+              <Route path="/dashboard" element={<DashboardPage />} />
+              <Route path="/dashboard/agenda" element={<AgendaPage />} />
+              <Route path="/dashboard/clientes" element={<ClientesPage />} />
+              <Route path="/dashboard/servicos" element={<ServicosPage />} />
+              <Route path="/dashboard/mensagens" element={<MensagensPage />} />
+              <Route path="/dashboard/configuracoes" element={<ConfiguracoesPage />} />
+              <Route path="/dashboard/relatorios" element={<RelatoriosPage />} />
+              <Route path="/dashboard/link-agendamento" element={<LinkAgendamentoPage />} />
             </Route>
             
             {/* Catch-all route */}

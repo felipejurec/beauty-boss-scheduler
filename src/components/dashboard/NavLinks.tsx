@@ -69,8 +69,8 @@ export const NavLinks = () => {
             "flex items-center gap-3 rounded-md px-3 py-2 text-sm transition-colors",
             location.pathname === item.href || 
             (item.href !== "/dashboard" && location.pathname.startsWith(item.href))
-              ? "bg-accent text-accent-foreground" 
-              : "hover:bg-accent/50"
+              ? "bg-brand-100 text-brand-600 hover:bg-brand-200" 
+              : "text-gray-600 hover:bg-brand-50 hover:text-brand-600"
           )}
         >
           {item.icon}

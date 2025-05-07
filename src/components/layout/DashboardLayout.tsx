@@ -16,7 +16,10 @@ import {
   X,
   Bell,
   ChartBar,
-  MessageSquare
+  MessageSquare,
+  Scissors,
+  FileText,
+  Link as LinkIcon
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -77,20 +80,28 @@ const DashboardLayout = () => {
 
   // Obter iniciais do nome do usuário para exibir no Avatar
   const getUserInitials = () => {
-    if (!currentUser?.name) return '?';
-    return currentUser.name
-      .split(' ')
-      .map((n) => n[0])
-      .join('')
-      .toUpperCase();
+    if (!currentUser?.displayName && !currentUser?.email) return '?';
+    
+    if (currentUser?.displayName) {
+      return currentUser.displayName
+        .split(' ')
+        .map((n) => n[0])
+        .join('')
+        .toUpperCase();
+    }
+    
+    // Fallback para email se não tiver nome
+    return currentUser.email?.substring(0, 2).toUpperCase() || '?';
   };
 
   const navigation = [
     { href: '/dashboard', icon: <ChartBar className="h-5 w-5" />, label: 'Visão Geral' },
     { href: '/dashboard/agenda', icon: <Calendar className="h-5 w-5" />, label: 'Agenda' },
     { href: '/dashboard/clientes', icon: <Users className="h-5 w-5" />, label: 'Clientes' },
-    { href: '/dashboard/servicos', icon: <Clock className="h-5 w-5" />, label: 'Serviços' },
+    { href: '/dashboard/servicos', icon: <Scissors className="h-5 w-5" />, label: 'Serviços' },
     { href: '/dashboard/mensagens', icon: <MessageSquare className="h-5 w-5" />, label: 'Mensagens' },
+    { href: '/dashboard/relatorios', icon: <FileText className="h-5 w-5" />, label: 'Relatórios' },
+    { href: '/dashboard/link-agendamento', icon: <LinkIcon className="h-5 w-5" />, label: 'Link de Agendamento' },
     { href: '/dashboard/configuracoes', icon: <Settings className="h-5 w-5" />, label: 'Configurações' },
   ];
 
@@ -204,7 +215,7 @@ const DashboardLayout = () => {
                 </AvatarFallback>
               </Avatar>
               <div className="hidden md:block">
-                <p className="font-medium text-sm">{currentUser?.name || 'Usuário'}</p>
+                <p className="font-medium text-sm">{currentUser?.displayName || currentUser?.email || 'Usuário'}</p>
                 <p className="text-xs text-gray-500">Professional</p>
               </div>
             </div>
