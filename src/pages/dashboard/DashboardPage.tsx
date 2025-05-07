@@ -74,7 +74,7 @@ const DashboardPage = () => {
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <Badge variant="outline" className="bg-green-50 text-green-700 hover:bg-green-100">
+          <Badge variant="outline" className="bg-green-50 text-green-700 hover:bg-green-100 py-[6px]">
             Conta Ativa
           </Badge>
           <Button variant="outline" size="sm" className="gap-1">
