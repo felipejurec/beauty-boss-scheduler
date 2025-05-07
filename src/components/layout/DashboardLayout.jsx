@@ -6,10 +6,10 @@ import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Menu } from "lucide-react";
 import Logo from "@/components/Logo";
 import NavLinks from '@/components/dashboard/NavLinks';
-import useMobile from '@/hooks/use-mobile';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 const DashboardLayout = () => {
-  const isMobile = useMobile();
+  const isMobile = useIsMobile();
 
   return (
     <div className="flex min-h-screen">
