@@ -1,5 +1,4 @@
-
-import React from 'react';
+import React, { useEffect } from 'react';
 import PageContainer from '@/components/PageContainer';
 import { 
   Card, 
@@ -24,8 +23,12 @@ import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useForm } from 'react-hook-form';
+import { Loader2 } from 'lucide-react';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/contexts/AuthContext';
+import { toast } from 'sonner';
 
 const profileFormSchema = z.object({
   name: z.string().min(2, { message: 'Nome deve ter pelo menos 2 caracteres' }),
@@ -35,38 +38,131 @@ const profileFormSchema = z.object({
 
 const businessFormSchema = z.object({
   businessName: z.string().min(2, { message: 'Nome do negócio deve ter pelo menos 2 caracteres' }),
-  address: z.string().min(5, { message: 'Endereço deve ter pelo menos 5 caracteres' }),
-  phone: z.string().min(8, { message: 'Telefone deve ter pelo menos 8 caracteres' }),
+  address: z.string().min(5, { message: 'Endereço deve ter pelo menos 5 caracteres' }).optional().or(z.literal('')),
+  phone: z.string().min(8, { message: 'Telefone deve ter pelo menos 8 caracteres' }).optional().or(z.literal('')),
 });
 
 const ConfiguracoesPage = () => {
+  const { currentUser } = useAuth();
+  const [loading, setLoading] = React.useState(true);
+  const [submitting, setSubmitting] = React.useState(false);
+
   const profileForm = useForm<z.infer<typeof profileFormSchema>>({
     resolver: zodResolver(profileFormSchema),
     defaultValues: {
-      name: 'João Silva',
-      email: 'joao@email.com',
-      bio: 'Profissional com 10 anos de experiência no setor de beleza.',
+      name: '',
+      email: '',
+      bio: '',
     },
   });
 
   const businessForm = useForm<z.infer<typeof businessFormSchema>>({
     resolver: zodResolver(businessFormSchema),
     defaultValues: {
-      businessName: 'Salão Beleza',
-      address: 'Rua das Flores, 123 - São Paulo, SP',
-      phone: '(11) 99999-8888',
+      businessName: '',
+      address: '',
+      phone: '',
     },
   });
 
-  const onProfileSubmit = (data: z.infer<typeof profileFormSchema>) => {
-    console.log(data);
-    // Implementar lógica para salvar
+  useEffect(() => {
+    const loadProfileData = async () => {
+      if (!currentUser) return;
+
+      try {
+        setLoading(true);
+        
+        const { data, error } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', currentUser.id)
+          .single();
+        
+        if (error) throw error;
+        
+        // Atualizar form do perfil
+        profileForm.reset({
+          name: data.name || '',
+          email: data.email || '',
+          bio: data.bio || '',
+        });
+        
+        // Atualizar form do negócio
+        businessForm.reset({
+          businessName: data.business_name || '',
+          address: data.business_address || '',
+          phone: data.business_phone || '',
+        });
+      } catch (error) {
+        console.error('Erro ao carregar dados do perfil:', error);
+        toast.error('Erro ao carregar seus dados');
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    loadProfileData();
+  }, [currentUser]);
+
+  const onProfileSubmit = async (data: z.infer<typeof profileFormSchema>) => {
+    if (!currentUser) return;
+    
+    setSubmitting(true);
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .update({
+          name: data.name,
+          bio: data.bio,
+        })
+        .eq('id', currentUser.id);
+      
+      if (error) throw error;
+      
+      toast.success('Perfil atualizado com sucesso');
+    } catch (error) {
+      console.error('Erro ao atualizar perfil:', error);
+      toast.error('Erro ao atualizar perfil');
+    } finally {
+      setSubmitting(false);
+    }
   };
 
-  const onBusinessSubmit = (data: z.infer<typeof businessFormSchema>) => {
-    console.log(data);
-    // Implementar lógica para salvar
+  const onBusinessSubmit = async (data: z.infer<typeof businessFormSchema>) => {
+    if (!currentUser) return;
+    
+    setSubmitting(true);
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .update({
+          business_name: data.businessName,
+          business_address: data.address,
+          business_phone: data.phone,
+        })
+        .eq('id', currentUser.id);
+      
+      if (error) throw error;
+      
+      toast.success('Dados do negócio atualizados com sucesso');
+    } catch (error) {
+      console.error('Erro ao atualizar dados do negócio:', error);
+      toast.error('Erro ao atualizar dados do negócio');
+    } finally {
+      setSubmitting(false);
+    }
   };
+
+  if (loading) {
+    return (
+      <PageContainer>
+        <div className="flex items-center justify-center h-64">
+          <Loader2 className="h-8 w-8 animate-spin text-brand-500" />
+          <span className="ml-2">Carregando dados...</span>
+        </div>
+      </PageContainer>
+    );
+  }
 
   return (
     <PageContainer>
@@ -111,8 +207,11 @@ const ConfiguracoesPage = () => {
                       <FormItem>
                         <FormLabel>Email</FormLabel>
                         <FormControl>
-                          <Input {...field} />
+                          <Input {...field} disabled />
                         </FormControl>
+                        <FormDescription>
+                          O email não pode ser alterado.
+                        </FormDescription>
                         <FormMessage />
                       </FormItem>
                     )}
@@ -135,7 +234,16 @@ const ConfiguracoesPage = () => {
                     )}
                   />
                   
-                  <Button type="submit">Salvar alterações</Button>
+                  <Button type="submit" disabled={submitting}>
+                    {submitting ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Salvando...
+                      </>
+                    ) : (
+                      'Salvar alterações'
+                    )}
+                  </Button>
                 </form>
               </Form>
             </CardContent>
@@ -193,7 +301,16 @@ const ConfiguracoesPage = () => {
                     )}
                   />
                   
-                  <Button type="submit">Salvar alterações</Button>
+                  <Button type="submit" disabled={submitting}>
+                    {submitting ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Salvando...
+                      </>
+                    ) : (
+                      'Salvar alterações'
+                    )}
+                  </Button>
                 </form>
               </Form>
             </CardContent>

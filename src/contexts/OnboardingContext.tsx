@@ -1,7 +1,10 @@
 
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext, useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { BusinessType, OnboardingState } from '@/types';
 import { getServicesByBusinessType } from '@/lib/mock-data';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from './AuthContext';
 import { toast } from 'sonner';
 
 interface OnboardingContextType {
@@ -15,7 +18,9 @@ interface OnboardingContextType {
   updateService: (index: number, name: string, duration: number, price: number) => void;
   loadDefaultServices: (businessType: BusinessType) => void;
   setSchedule: (day: string, enabled: boolean, start: string, end: string) => void;
+  saveOnboardingData: () => Promise<void>;
   resetState: () => void;
+  isSubmitting: boolean;
 }
 
 const initialState: OnboardingState = {
@@ -40,6 +45,101 @@ const OnboardingContext = createContext<OnboardingContextType | undefined>(undef
 
 export const OnboardingProvider = ({ children }: { children: React.ReactNode }) => {
   const [state, setState] = useState<OnboardingState>(initialState);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const { currentUser } = useAuth();
+  const navigate = useNavigate();
+
+  // Carregar dados existentes do usuário, se disponíveis
+  useEffect(() => {
+    const loadUserData = async () => {
+      if (!currentUser) return;
+
+      try {
+        // Carrega o perfil do usuário
+        const { data: profileData, error: profileError } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', currentUser.id)
+          .single();
+
+        if (profileError) throw profileError;
+
+        // Atualiza o tipo de negócio se disponível
+        if (profileData.business_type) {
+          setState(prev => ({
+            ...prev,
+            businessType: profileData.business_type as BusinessType
+          }));
+        }
+
+        // Carrega os profissionais do usuário
+        const { data: professionalsData, error: professionalsError } = await supabase
+          .from('professionals')
+          .select('*')
+          .eq('user_id', currentUser.id);
+
+        if (professionalsError) throw professionalsError;
+
+        if (professionalsData && professionalsData.length > 0) {
+          setState(prev => ({
+            ...prev,
+            professionals: professionalsData.map(prof => ({ name: prof.name }))
+          }));
+        }
+
+        // Carrega os serviços do usuário
+        const { data: servicesData, error: servicesError } = await supabase
+          .from('services')
+          .select('*')
+          .eq('user_id', currentUser.id);
+
+        if (servicesError) throw servicesError;
+
+        if (servicesData && servicesData.length > 0) {
+          setState(prev => ({
+            ...prev,
+            services: servicesData.map(service => ({
+              name: service.name,
+              duration: service.duration,
+              price: Number(service.price)
+            }))
+          }));
+        }
+
+        // Carrega os horários do usuário
+        const { data: schedulesData, error: schedulesError } = await supabase
+          .from('schedules')
+          .select('*')
+          .eq('user_id', currentUser.id);
+
+        if (schedulesError) throw schedulesError;
+
+        if (schedulesData && schedulesData.length > 0) {
+          const days = { ...initialState.schedule.days };
+          
+          schedulesData.forEach(schedule => {
+            const dayKey = schedule.day_of_week.toLowerCase();
+            if (days[dayKey]) {
+              days[dayKey] = {
+                enabled: schedule.enabled,
+                start: schedule.start_time,
+                end: schedule.end_time
+              };
+            }
+          });
+
+          setState(prev => ({
+            ...prev,
+            schedule: { days }
+          }));
+        }
+      } catch (error) {
+        console.error('Erro ao carregar dados do usuário:', error);
+      }
+    };
+
+    loadUserData();
+  }, [currentUser]);
 
   const setStep = (step: number) => {
     setState(prev => ({ ...prev, step }));
@@ -108,6 +208,101 @@ export const OnboardingProvider = ({ children }: { children: React.ReactNode }) 
     }));
   };
 
+  const saveOnboardingData = async () => {
+    if (!currentUser) {
+      toast.error("Você precisa estar logado para salvar os dados");
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      // Salvar o tipo de negócio no perfil
+      const { error: profileError } = await supabase
+        .from('profiles')
+        .update({ business_type: state.businessType })
+        .eq('id', currentUser.id);
+
+      if (profileError) throw profileError;
+
+      // Excluir profissionais existentes e inserir novos
+      if (state.professionals.length > 0) {
+        // Excluir profissionais existentes
+        await supabase
+          .from('professionals')
+          .delete()
+          .eq('user_id', currentUser.id);
+
+        // Inserir novos profissionais
+        const professionals = state.professionals
+          .filter(p => p.name.trim()) // Remover profissionais sem nome
+          .map(p => ({ user_id: currentUser.id, name: p.name }));
+
+        if (professionals.length > 0) {
+          const { error: professionalError } = await supabase
+            .from('professionals')
+            .insert(professionals);
+
+          if (professionalError) throw professionalError;
+        }
+      }
+
+      // Excluir serviços existentes e inserir novos
+      if (state.services.length > 0) {
+        // Excluir serviços existentes
+        await supabase
+          .from('services')
+          .delete()
+          .eq('user_id', currentUser.id);
+
+        // Inserir novos serviços
+        const services = state.services.map(s => ({
+          user_id: currentUser.id,
+          name: s.name,
+          duration: s.duration,
+          price: s.price
+        }));
+
+        const { error: servicesError } = await supabase
+          .from('services')
+          .insert(services);
+
+        if (servicesError) throw servicesError;
+      }
+
+      // Excluir horários existentes e inserir novos
+      // Excluir horários existentes
+      await supabase
+        .from('schedules')
+        .delete()
+        .eq('user_id', currentUser.id);
+
+      // Inserir novos horários
+      const schedules = Object.entries(state.schedule.days).map(([day, { enabled, start, end }]) => ({
+        user_id: currentUser.id,
+        day_of_week: day,
+        enabled,
+        start_time: start,
+        end_time: end
+      }));
+
+      const { error: schedulesError } = await supabase
+        .from('schedules')
+        .insert(schedules);
+
+      if (schedulesError) throw schedulesError;
+
+      toast.success("Dados de onboarding salvos com sucesso!");
+      
+      // Redirecionar para o dashboard após salvar
+      navigate('/dashboard');
+    } catch (error) {
+      console.error('Erro ao salvar dados de onboarding:', error);
+      toast.error("Erro ao salvar dados: " + (error as Error).message);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   const resetState = () => {
     setState(initialState);
   };
@@ -125,7 +320,9 @@ export const OnboardingProvider = ({ children }: { children: React.ReactNode }) 
         updateService,
         loadDefaultServices,
         setSchedule,
-        resetState
+        saveOnboardingData,
+        resetState,
+        isSubmitting
       }}
     >
       {children}

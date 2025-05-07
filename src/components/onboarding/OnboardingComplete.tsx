@@ -3,19 +3,37 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { Check, ChevronRight } from 'lucide-react';
+import { Check, ChevronRight, Loader2 } from 'lucide-react';
 import { subscriptionPlans } from '@/lib/mock-data';
 import { toast } from 'sonner';
+import { useOnboarding } from '@/contexts/OnboardingContext';
 
 const OnboardingComplete = () => {
   const navigate = useNavigate();
+  const { saveOnboardingData, isSubmitting } = useOnboarding();
   
-  const handleSubscribe = (planId: string) => {
-    toast.success(`Plano ${planId} selecionado! Redirecionando para pagamento...`);
-    // Mock subscription process - in a real app, we'd redirect to Stripe
-    setTimeout(() => {
+  const handleSubscribe = async (planId: string) => {
+    try {
+      // Salvar todos os dados de onboarding antes de prosseguir
+      await saveOnboardingData();
+      
+      toast.success(`Plano ${planId} selecionado! Redirecionando para pagamento...`);
+      // Mock subscription process - in a real app, we'd redirect to Stripe
+      setTimeout(() => {
+        navigate('/dashboard');
+      }, 1500);
+    } catch (error) {
+      console.error('Erro ao finalizar onboarding:', error);
+    }
+  };
+
+  const handleStartTrial = async () => {
+    try {
+      await saveOnboardingData();
       navigate('/dashboard');
-    }, 1500);
+    } catch (error) {
+      console.error('Erro ao iniciar período de teste:', error);
+    }
   };
 
   return (
@@ -55,8 +73,14 @@ const OnboardingComplete = () => {
               <Button 
                 onClick={() => handleSubscribe(plan.id)}
                 className={plan.id === 'pro' ? 'bg-brand-500 hover:bg-brand-600' : ''}
+                disabled={isSubmitting}
               >
-                Selecionar plano
+                {isSubmitting ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Processando...
+                  </>
+                ) : 'Selecionar plano'}
               </Button>
             </CardContent>
           </Card>
@@ -69,8 +93,21 @@ const OnboardingComplete = () => {
           <br />
           Sem compromisso, cancele a qualquer momento.
         </p>
-        <Button variant="outline" onClick={() => navigate('/dashboard')}>
-          Começar meu período de teste <ChevronRight className="ml-2 h-4 w-4" />
+        <Button 
+          variant="outline" 
+          onClick={handleStartTrial} 
+          disabled={isSubmitting}
+        >
+          {isSubmitting ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              Processando...
+            </>
+          ) : (
+            <>
+              Começar meu período de teste <ChevronRight className="ml-2 h-4 w-4" />
+            </>
+          )}
         </Button>
       </div>
     </div>

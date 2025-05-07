@@ -1,11 +1,12 @@
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { User } from '@/types';
-import { mockUser } from '@/lib/mock-data';
+import { User, Session } from '@supabase/supabase-js';
+import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
 interface AuthContextType {
   currentUser: User | null;
+  session: Session | null;
   isLoading: boolean;
   isAuthenticated: boolean;
   login: (email: string, password: string) => Promise<void>;
@@ -17,43 +18,50 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
+  const [session, setSession] = useState<Session | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
 
   useEffect(() => {
+    // Set up auth state listener
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (event, newSession) => {
+        setSession(newSession);
+        setCurrentUser(newSession?.user ?? null);
+        setIsAuthenticated(!!newSession);
+      }
+    );
+
     // Check for existing session
     const checkSession = async () => {
       try {
-        // In a real implementation, we would check with Supabase here
-        const savedUser = localStorage.getItem('beauty_boss_user');
-        if (savedUser) {
-          setCurrentUser(JSON.parse(savedUser));
-          setIsAuthenticated(true);
-        }
+        const { data, error } = await supabase.auth.getSession();
+        if (error) throw error;
+        
+        setSession(data.session);
+        setCurrentUser(data.session?.user ?? null);
+        setIsAuthenticated(!!data.session);
       } catch (error) {
-        console.error('Session check failed:', error);
+        console.error('Erro ao verificar sessão:', error);
       } finally {
         setIsLoading(false);
       }
     };
 
     checkSession();
+
+    return () => subscription.unsubscribe();
   }, []);
 
   const login = async (email: string, password: string) => {
     setIsLoading(true);
     try {
-      // Mock login - would be replaced with Supabase auth
-      if (email === mockUser.email && password === 'password') {
-        setCurrentUser(mockUser);
-        setIsAuthenticated(true);
-        localStorage.setItem('beauty_boss_user', JSON.stringify(mockUser));
-        toast.success("Login realizado com sucesso!");
-      } else {
-        throw new Error('Credenciais inválidas');
-      }
+      const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+      if (error) throw error;
+      toast.success("Login realizado com sucesso!");
     } catch (error) {
-      toast.error("Falha no login: " + (error as Error).message);
+      const errorMessage = (error as Error).message || 'Falha no login';
+      toast.error("Falha no login: " + errorMessage);
       throw error;
     } finally {
       setIsLoading(false);
@@ -63,21 +71,31 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const signup = async (name: string, email: string, whatsapp: string, password: string) => {
     setIsLoading(true);
     try {
-      // Mock signup - would be replaced with Supabase auth
-      const newUser: User = {
-        id: `user-${Date.now()}`,
-        name,
+      // Signup usando o Supabase
+      const { data, error } = await supabase.auth.signUp({
         email,
-        whatsapp,
-        isSubscribed: false
-      };
+        password,
+        options: {
+          data: { name, whatsapp }
+        }
+      });
       
-      setCurrentUser(newUser);
-      setIsAuthenticated(true);
-      localStorage.setItem('beauty_boss_user', JSON.stringify(newUser));
-      toast.success("Cadastro realizado com sucesso!");
+      if (error) throw error;
+      
+      // Atualizar o perfil com WhatsApp após a criação automática via trigger
+      if (data.user) {
+        const { error: updateError } = await supabase
+          .from('profiles')
+          .update({ whatsapp })
+          .eq('id', data.user.id);
+          
+        if (updateError) console.error('Erro ao atualizar WhatsApp:', updateError);
+      }
+      
+      toast.success("Cadastro realizado com sucesso! Verifique seu email para confirmar sua conta.");
     } catch (error) {
-      toast.error("Falha no cadastro: " + (error as Error).message);
+      const errorMessage = (error as Error).message || 'Falha no cadastro';
+      toast.error("Falha no cadastro: " + errorMessage);
       throw error;
     } finally {
       setIsLoading(false);
@@ -86,13 +104,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const logout = async () => {
     try {
-      // Mock logout - would be replaced with Supabase auth
-      setCurrentUser(null);
-      setIsAuthenticated(false);
-      localStorage.removeItem('beauty_boss_user');
+      const { error } = await supabase.auth.signOut();
+      if (error) throw error;
       toast.success("Logout realizado com sucesso!");
     } catch (error) {
-      toast.error("Falha ao sair: " + (error as Error).message);
+      const errorMessage = (error as Error).message || 'Falha ao sair';
+      toast.error("Falha ao sair: " + errorMessage);
       throw error;
     }
   };
@@ -101,6 +118,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     <AuthContext.Provider
       value={{
         currentUser,
+        session,
         isLoading,
         isAuthenticated,
         login,

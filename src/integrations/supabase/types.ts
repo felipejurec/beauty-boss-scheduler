@@ -9,7 +9,135 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      professionals: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          bio: string | null
+          business_address: string | null
+          business_logo: string | null
+          business_name: string | null
+          business_phone: string | null
+          business_type: string | null
+          created_at: string
+          email: string
+          id: string
+          name: string
+          updated_at: string
+          whatsapp: string | null
+        }
+        Insert: {
+          bio?: string | null
+          business_address?: string | null
+          business_logo?: string | null
+          business_name?: string | null
+          business_phone?: string | null
+          business_type?: string | null
+          created_at?: string
+          email: string
+          id: string
+          name: string
+          updated_at?: string
+          whatsapp?: string | null
+        }
+        Update: {
+          bio?: string | null
+          business_address?: string | null
+          business_logo?: string | null
+          business_name?: string | null
+          business_phone?: string | null
+          business_type?: string | null
+          created_at?: string
+          email?: string
+          id?: string
+          name?: string
+          updated_at?: string
+          whatsapp?: string | null
+        }
+        Relationships: []
+      }
+      schedules: {
+        Row: {
+          created_at: string
+          day_of_week: string
+          enabled: boolean
+          end_time: string
+          id: string
+          start_time: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          day_of_week: string
+          enabled?: boolean
+          end_time: string
+          id?: string
+          start_time: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          day_of_week?: string
+          enabled?: boolean
+          end_time?: string
+          id?: string
+          start_time?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      services: {
+        Row: {
+          created_at: string
+          duration: number
+          id: string
+          name: string
+          price: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          duration: number
+          id?: string
+          name: string
+          price: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          duration?: number
+          id?: string
+          name?: string
+          price?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
