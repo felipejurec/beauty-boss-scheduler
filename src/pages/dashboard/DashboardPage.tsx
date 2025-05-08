@@ -66,7 +66,7 @@ const DashboardPage = () => {
       {/* Cabeçalho do Dashboard */}
       <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between mb-6">
         <div>
-          <h1 className="text-3xl font-bold">{currentUser?.businessName || 'Seu Negócio'}</h1>
+          <h1 className="text-3xl font-bold">{currentUser?.name || 'Seu Negócio'}</h1>
           <p className="text-muted-foreground my-[20px]">
             {format(new Date(), "'Hoje é' EEEE, dd 'de' MMMM 'de' yyyy", {
             locale: ptBR

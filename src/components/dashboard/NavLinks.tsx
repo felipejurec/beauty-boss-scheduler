@@ -5,7 +5,6 @@ import {
   Calendar, 
   Users, 
   Scissors, 
-  MessageSquare, 
   BarChart, 
   Settings,
   FileText,
@@ -33,11 +32,6 @@ const navItems = [
     title: "Serviços",
     href: "/dashboard/servicos",
     icon: <Scissors className="h-5 w-5" />
-  },
-  {
-    title: "Mensagens",
-    href: "/dashboard/mensagens",
-    icon: <MessageSquare className="h-5 w-5" />
   },
   {
     title: "Relatórios",

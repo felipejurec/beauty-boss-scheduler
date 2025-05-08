@@ -8,7 +8,6 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import { OnboardingProvider } from "@/contexts/OnboardingContext";
 
 // Pages
-import LandingPage from "./pages/LandingPage";
 import LoginPage from "./pages/LoginPage";
 import SignupPage from "./pages/SignupPage";
 import OnboardingPage from "./pages/OnboardingPage";
@@ -20,7 +19,6 @@ import DashboardPage from "./pages/dashboard/DashboardPage";
 import AgendaPage from "./pages/dashboard/AgendaPage";
 import ClientesPage from "./pages/dashboard/ClientesPage";
 import ServicosPage from "./pages/dashboard/ServicosPage";
-import MensagensPage from "./pages/dashboard/MensagensPage";
 import ConfiguracoesPage from "./pages/dashboard/ConfiguracoesPage";
 import RelatoriosPage from "./pages/dashboard/RelatoriosPage";
 import LinkAgendamentoPage from "./pages/dashboard/LinkAgendamentoPage";
@@ -41,8 +39,8 @@ const App = () => (
           <Toaster />
           <Sonner />
           <Routes>
-            {/* Public routes */}
-            <Route path="/" element={<LandingPage />} />
+            {/* Redirect from homepage to dashboard */}
+            <Route path="/" element={<Navigate to="/dashboard" replace />} />
             <Route path="/login" element={<LoginPage />} />
             <Route path="/signup" element={<SignupPage />} />
             
@@ -67,7 +65,6 @@ const App = () => (
               <Route path="/dashboard/agenda" element={<AgendaPage />} />
               <Route path="/dashboard/clientes" element={<ClientesPage />} />
               <Route path="/dashboard/servicos" element={<ServicosPage />} />
-              <Route path="/dashboard/mensagens" element={<MensagensPage />} />
               <Route path="/dashboard/configuracoes" element={<ConfiguracoesPage />} />
               <Route path="/dashboard/relatorios" element={<RelatoriosPage />} />
               <Route path="/dashboard/link-agendamento" element={<LinkAgendamentoPage />} />
